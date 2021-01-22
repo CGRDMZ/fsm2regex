@@ -17,11 +17,27 @@ public class fsm2regex {
             Scanner sc = new Scanner(new File("./dfa.txt"));
             String initialState = sc.nextLine().split("=")[1];
             String[] finalStates = sc.nextLine().split("=")[1].split(",");
+
+            // ignore the alphabet
             sc.nextLine();
+
             String[] states = sc.nextLine().split("=")[1].split(",");
+
+            // add states
+            for (String state :
+                    states) {
+                addState(state);
+            }
+
+            setInitialState(initialState);
+
+            setFinalStates(finalStates);
+
+
+            // add transitions
             while (sc.hasNextLine()) {
                 String transitionLine = sc.nextLine();
-                addTransition(transitionLine.split(",")[0], transitionLine.split("=")[1], transitionLine.split());
+                addTransition(transitionLine.split(",")[0], transitionLine.split("=")[1], transitionLine.split("=")[0].split(",")[1]);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -36,6 +52,18 @@ public class fsm2regex {
 
     private void addState(String name) {
         fsm.addState(new State(name));
+    }
+
+    private void convertToGeneralizedNFA() {
+        State initialState = fsm.getInitialState();
+        State finalState = fsm.getFinalStates()[0];
+        State[] states = fsm.getStates();
+        for (State state :
+                states) {
+            if (state != finalState && state != initialState) {
+                getTransitionsOfTheStateToBeRemoved(state);
+            }
+        }
     }
 
     private void setInitialState(String name) {

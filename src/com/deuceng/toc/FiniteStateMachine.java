@@ -45,6 +45,21 @@ public class FiniteStateMachine<T> {
         list.add(t);
     }
 
+    public Transition[] getTransitionsBetweenStates(State src, State dest) {
+        Transition[] t = getTransitionsFromState(src);
+        ArrayList list = new ArrayList();
+        for (int i = 0; i < t.length; i++)
+            if (t[i].getDest() == dest)
+                list.add(t[i]);
+        return (Transition[]) list.toArray(new Transition[0]);
+    }
+
+
+    public Transition[] getTransitionsFromState(State src) {
+        List transitionsList = (List) transitionFromStateMap.get(src);
+        return (Transition[]) transitionsList.toArray(new Transition[0]);
+    }
+
     public State getState(String stateName) {
         Iterator it = states.iterator();
         while (it.hasNext()) {
@@ -55,8 +70,9 @@ public class FiniteStateMachine<T> {
         return null;
     }
 
-    public Set getFinalStates() {
-        return finalStates;
+    public State[] getFinalStates() {
+
+        return (State[]) finalStates.toArray();
     }
 
     public void setFinalStates(Set finalStates) {
@@ -69,5 +85,21 @@ public class FiniteStateMachine<T> {
 
     public void setInitialState(State initialState) {
         this.initialState = initialState;
+    }
+
+    public State[] getStates() {
+        return (State[]) states.toArray();
+    }
+
+    public void setStates(Set states) {
+        this.states = states;
+    }
+
+    public Set getTransitions() {
+        return transitions;
+    }
+
+    public void setTransitions(Set transitions) {
+        this.transitions = transitions;
     }
 }
