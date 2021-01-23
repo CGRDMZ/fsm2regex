@@ -25,7 +25,6 @@ public class FiniteStateMachine<T> {
     }
 
     public void addState(State s) {
-        if (states.contains(s)) return;
         states.add(s);
         transitionFromStateMap.put(s, new LinkedList());
         transitionToStateMap.put(s, new LinkedList());
@@ -72,7 +71,7 @@ public class FiniteStateMachine<T> {
 
     public State[] getFinalStates() {
 
-        return (State[]) finalStates.toArray();
+        return (State[]) finalStates.toArray(new State[finalStates.size()]);
     }
 
     public void setFinalStates(Set finalStates) {
@@ -88,7 +87,7 @@ public class FiniteStateMachine<T> {
     }
 
     public State[] getStates() {
-        return (State[]) states.toArray();
+        return (State[]) states.toArray(new State[states.size()]);
     }
 
     public void setStates(Set states) {
