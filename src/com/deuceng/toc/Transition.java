@@ -42,10 +42,8 @@ public class Transition {
 
     @Override
     public String toString() {
-        return "Transition{" +
-                "source=" + source +
-                ", dest=" + dest +
-                ", label='" + label + '\'' +
+        return "Transition{" + source +
+                "---" + label + "--->" + dest +
                 '}';
     }
 }

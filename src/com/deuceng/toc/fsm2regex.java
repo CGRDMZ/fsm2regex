@@ -52,7 +52,6 @@ public class fsm2regex {
             setInitialState(initialState);
 
 
-
             setFinalStates(finalStatesTokens);
 
 
@@ -90,7 +89,8 @@ public class fsm2regex {
             fsm.addTransition(new Transition(finalState, fsm.getState("final"), LAMBDA));
         }
 
-        setFinalStates(new String[] {"final"});
+        setFinalStates(new String[]{"final"});
+        combineTransitions();
         createEmptyTransitions();
 
         State initialState = fsm.getInitialState();
@@ -99,13 +99,46 @@ public class fsm2regex {
         for (State state :
                 states) {
             if (state != finalState && state != initialState) {
-                Transition[] transitionsToBeRemoved = getTransitionsOfTheStateToBeRemoved(state);
-                removeState(state, transitionsToBeRemoved);
+                Transition[] transitionsOfRemoveState = getTransitionsOfTheStateToBeRemoved(state);
+                removeState(state, transitionsOfRemoveState);
+                System.out.println(fsm);
             }
         }
     }
 
+    private void combineTransitions() {
+        State[] s = fsm.getStates();
+        for (int i = 0; i < s.length; i++)
+            for (int j = 0; j < s.length; j++) {
+                Transition[] transitions = fsm.getTransitionsBetweenStates(s[i], s[j]);
+                if (transitions.length > 1) {
+                    String label = ((Transition) transitions[0]).getLabel();
+                    fsm.removeTransition(transitions[0]);
+                    for (int k = 1; k < transitions.length; k++) {
+                        label = or(label, ((Transition) transitions[k]).getLabel());
+                        fsm.removeTransition(transitions[k]);
+                    }
+                    Transition t = new Transition(s[i], s[j], label);
+                    fsm.addTransition(t);
+                }
+            }
+    }
+
+    private void transitionCollapse(State state, State state1) {
+
+    }
+
     private void removeState(State state, Transition[] transitionsToBeRemoved) {
+        Transition[] toBeRemoved = fsm.getTransitions();
+        for (Transition t :
+                toBeRemoved) {
+            fsm.removeTransition(t);
+        }
+        fsm.removeState(state);
+        for (Transition t :
+                transitionsToBeRemoved) {
+            fsm.addTransition(t);
+        }
     }
 
     private Transition[] getTransitionsOfTheStateToBeRemoved(State rip) {
@@ -132,7 +165,13 @@ public class fsm2regex {
         String betweenRipRip = getExpressionBetweenStates(rip, rip);
         String betweenRipDest = getExpressionBetweenStates(rip, dest);
 
-        return or(betweenSrcDest, concatenate(concatenate(betweenSrcRip, star(betweenRipRip)), betweenRipDest));
+        String temp1 = star(betweenRipRip);
+        String temp2 = concatenate(betweenSrcRip, temp1);
+        String temp3 = concatenate(temp2, betweenRipDest);
+        String label = or(betweenSrcDest, temp3);
+        return label;
+
+//        return or(betweenSrcDest, concatenate(concatenate(betweenSrcRip, star(betweenRipRip)), betweenRipDest));
 
 
     }
@@ -242,7 +281,7 @@ public class fsm2regex {
         for (int i = 0; i < s.length; i++)
             for (int j = 0; j < s.length; j++)
                 if (fsm.getTransitionsBetweenStates(s[i], s[j]).length == 0) {
-                    Transition t = new Transition(s[i], s[j], "");
+                    Transition t = new Transition(s[i], s[j], "\u00F8");
                     fsm.addTransition(t);
                 }
     }

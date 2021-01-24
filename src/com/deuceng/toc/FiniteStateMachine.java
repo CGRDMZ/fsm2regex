@@ -10,8 +10,6 @@ public class FiniteStateMachine<T> {
     protected Set transitions;
     private HashMap transitionFromStateMap;
     private HashMap transitionToStateMap;
-    private HashMap transitionArrayFromStateMap;
-    private HashMap transitionArrayToStateMap;
 
     public FiniteStateMachine() {
         states = new HashSet();
@@ -20,14 +18,34 @@ public class FiniteStateMachine<T> {
         initialState = null;
         transitionFromStateMap = new HashMap();
         transitionToStateMap = new HashMap();
-        transitionArrayFromStateMap = new HashMap();
-        transitionArrayToStateMap = new HashMap();
     }
 
     public void addState(State s) {
         states.add(s);
         transitionFromStateMap.put(s, new LinkedList());
         transitionToStateMap.put(s, new LinkedList());
+    }
+
+    public void removeState(State s) {
+        Transition[] transitions = getTransitionsFromState(s);
+        for (Transition t :
+                transitions) {
+            removeTransition(t);
+        }
+        transitions = getTransitionsToState(s);
+        for (Transition t :
+                transitions) {
+            removeTransition(t);
+        }
+        states.remove(s);
+        finalStates.remove(s);
+        if (s == initialState) {
+            initialState = null;
+        }
+
+        transitionFromStateMap.remove(s);
+        transitionToStateMap.remove(s);
+
     }
 
     public void addTransition(Transition t) {
@@ -44,6 +62,14 @@ public class FiniteStateMachine<T> {
         list.add(t);
     }
 
+    public void removeTransition(Transition t) {
+        transitions.remove(t);
+        List l = (List) transitionFromStateMap.get(t.getSource());
+        l.remove(t);
+        l = (List) transitionToStateMap.get(t.getDest());
+        l.remove(t);
+    }
+
     public Transition[] getTransitionsBetweenStates(State src, State dest) {
         Transition[] t = getTransitionsFromState(src);
         ArrayList list = new ArrayList();
@@ -56,6 +82,10 @@ public class FiniteStateMachine<T> {
 
     public Transition[] getTransitionsFromState(State src) {
         List transitionsList = (List) transitionFromStateMap.get(src);
+        return (Transition[]) transitionsList.toArray(new Transition[0]);
+    }
+    public Transition[] getTransitionsToState(State dest) {
+        List transitionsList = (List) transitionToStateMap.get(dest);
         return (Transition[]) transitionsList.toArray(new Transition[0]);
     }
 
@@ -94,11 +124,19 @@ public class FiniteStateMachine<T> {
         this.states = states;
     }
 
-    public Set getTransitions() {
-        return transitions;
+    public Transition[] getTransitions() {
+        return (Transition[]) transitions.toArray(new Transition[transitions.size()]);
     }
 
     public void setTransitions(Set transitions) {
         this.transitions = transitions;
+    }
+
+
+    @Override
+    public String toString() {
+        return "FiniteStateMachine{" +
+                "transitionFromStateMap=" + transitionFromStateMap +
+                '}';
     }
 }
